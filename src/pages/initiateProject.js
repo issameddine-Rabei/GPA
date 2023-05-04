@@ -48,28 +48,31 @@ const Initiate = () => {
   };
 
   const handleNewClientChange = (event) => {
-    const { name, value } = event.target;
+    const { value, name } = event.target;
     setNewClientData((prevData) => ({ ...prevData, [name]: value }));
   };
+  useEffect(() => {
+    console.log(name, description, client, team, productionManager, notes);
+  }, [name, description, client, team, productionManager, notes]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
       const response = await axios.get(
         "http://127.0.0.1:8000/api/v1/users/employees"
       );
-      setEmployees(response.data.employees);
+      setEmployees(response.data?.employees);
     };
     fetchEmployees();
     const fetchClients = async () => {
       const response = await axios.get("http://127.0.0.1:8000/api/v1/clients");
-      setClients(response.data.Clients);
+      setClients(response.data?.Clients);
     };
     fetchClients();
     const fetchManagers = async () => {
       const response = await axios.get(
         "http://127.0.0.1:8000/api/v1/users/managers"
       );
-      setProductionManagers(response.data.managers);
+      setProductionManagers(response.data?.managers);
     };
     fetchManagers();
   }, []);
@@ -80,7 +83,16 @@ const Initiate = () => {
       if (isNewClient === true) {
         const response = await axios.post(
           "http://localhost:8000/api/v1/clients/create",
-          newClientData
+          {
+            name,
+            description,
+            client,
+            team,
+            productionManager,
+            notes,
+            email: newClientData.email,
+            phone: newClientData.phone,
+          }
         );
         setClient(response.Client._id);
       }
@@ -223,7 +235,7 @@ const Form = ({
               <input
                 type="text"
                 id="newClientData.name"
-                name="newClientData.name"
+                name="name"
                 placeholder="Enter client name"
                 value={newClientData.name}
                 onChange={handleNewClientChange}
@@ -234,7 +246,7 @@ const Form = ({
               <input
                 type="text"
                 id="newClientData.email"
-                name="newClientData.email"
+                name="email"
                 placeholder="Enter client email"
                 value={newClientData.email}
                 onChange={handleNewClientChange}
@@ -244,7 +256,7 @@ const Form = ({
               <input
                 type="text"
                 id="newClientData.phone"
-                name="newClientData.phone"
+                name="phone"
                 placeholder="Enter client phone"
                 value={newClientData.phone}
                 onChange={handleNewClientChange}
@@ -254,10 +266,9 @@ const Form = ({
               <input
                 type="file"
                 id="newClientData.image"
-                name="newClientData.image"
+                name="image"
                 value={newClientData.image}
                 onChange={handleNewClientChange}
-                required
               />
               <label htmlFor="existing-client">
                 <input
@@ -287,7 +298,14 @@ const Form = ({
               </option>
             ))}
           </select>
-          <button onClick={addEmployeeToTeam}>Add</button>
+          <button
+            onClick={(event) => {
+              event.preventDefault();
+              addEmployeeToTeam();
+            }}
+          >
+            Add
+          </button>
           {team.length > 0 && (
             <div>
               <p>Selected Employees:</p>
